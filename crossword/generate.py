@@ -181,7 +181,15 @@ def main():
 
     # Generate crossword
     crossword = Crossword(structure, words)
+    #print (crossword.structure)
+    #print(crossword.words)
+    #print(crossword.variables)
+    #print("-------------------")
+    #print(crossword.overlaps)
+    #print ("-----------------------")
     creator = CrosswordCreator(crossword)
+    print (creator.domains)
+    print("--------------------------")
     assignment = creator.solve()
 
     # Print result
