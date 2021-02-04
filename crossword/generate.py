@@ -91,7 +91,7 @@ class CrosswordCreator():
         """
         self.enforce_node_consistency()
         self.ac3()
-        return self.backtrack(dict())
+        # return self.backtrack(dict())
 
     def enforce_node_consistency(self):
         """
@@ -99,7 +99,12 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
+        for v in self.crossword.variables:
+            new_domains = set()
+            for domain in self.domains[v]:
+                if len(domain) == v.length:
+                    new_domains.add(domain)
+            self.domains[v] = new_domains
 
     def revise(self, x, y):
         """
@@ -121,7 +126,20 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
+        if not arcs:
+            arcs = list()
+            for var in self.crossword.variables:
+                for neighbor in self.crossword.neighbors(var):
+                    arc = (var, neighbor)
+                    arc_inverted = (neighbor, var)
+                    if not arc in arcs and not arc_inverted in arcs:
+                        arcs.append(arc)
+        
+        print(arcs)
+        print("------------------")
+
+
+
 
     def assignment_complete(self, assignment):
         """
@@ -191,6 +209,9 @@ def main():
     print (creator.domains)
     print("--------------------------")
     assignment = creator.solve()
+    print (creator.domains)
+    print("--------------------------")
+
 
     # Print result
     if assignment is None:
