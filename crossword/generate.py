@@ -89,8 +89,14 @@ class CrosswordCreator():
         """
         Enforce node and arc consistency, and then solve the CSP.
         """
+        print(self.domains)
+        print("-------------------")
         self.enforce_node_consistency()
+        print(self.domains)
+        print("-------------------")
         self.ac3()
+        print(self.domains)
+        print("-------------------")
         # return self.backtrack(dict())
 
     def enforce_node_consistency(self):
@@ -115,7 +121,20 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
+        i = self.crossword.overlaps[x, y][0]
+        j = self.crossword.overlaps[x, y][1]
+        x_new_domains = set()
+
+        for x_domain in self.domains[x]:
+            for y_domain in self.domains[y]:
+                if x_domain[i] == y_domain[j]:
+                    x_new_domains.add(x_domain)
+                    continue
+        
+        if len(self.domains[x]) != len(x_new_domains):
+            self.domains[x] = x_new_domains
+            return True
+        return False
 
     def ac3(self, arcs=None):
         """
@@ -135,10 +154,8 @@ class CrosswordCreator():
                     if not arc in arcs and not arc_inverted in arcs:
                         arcs.append(arc)
         
-        print(arcs)
-        print("------------------")
-
-
+        for x, y in arcs:
+            print(self.revise(x, y))
 
 
     def assignment_complete(self, assignment):
@@ -199,19 +216,8 @@ def main():
 
     # Generate crossword
     crossword = Crossword(structure, words)
-    #print (crossword.structure)
-    #print(crossword.words)
-    #print(crossword.variables)
-    #print("-------------------")
-    #print(crossword.overlaps)
-    #print ("-----------------------")
     creator = CrosswordCreator(crossword)
-    print (creator.domains)
-    print("--------------------------")
     assignment = creator.solve()
-    print (creator.domains)
-    print("--------------------------")
-
 
     # Print result
     if assignment is None:
