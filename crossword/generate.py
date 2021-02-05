@@ -147,16 +147,28 @@ class CrosswordCreator():
         """
         if not arcs:
             arcs = list()
-            for var in self.crossword.variables:
-                for neighbor in self.crossword.neighbors(var):
-                    arc = (var, neighbor)
-                    arc_inverted = (neighbor, var)
-                    if not arc in arcs and not arc_inverted in arcs:
+            for x in self.crossword.variables:
+                for neighbor in self.crossword.neighbors(x):
+                    arc = (x, neighbor)
+                    if not arc in arcs: 
                         arcs.append(arc)
-        
-        for x, y in arcs:
-            print(self.revise(x, y))
 
+        print(len(arcs))
+        print("-----------------")
+        
+        while arcs:
+            x, y = arcs.pop()
+            if self.revise(x, y):
+                if not len(self.domains[x]):
+                    return False
+                for neighbor in self.crossword.neighbors(x):
+                    if neighbor != y:
+                        arc = (neighbor, x)
+                        if not arc in arcs: 
+                            arcs.append(arc)
+        
+        return True
+        
 
     def assignment_complete(self, assignment):
         """
