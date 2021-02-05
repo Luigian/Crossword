@@ -91,13 +91,16 @@ class CrosswordCreator():
         """
         print(self.domains)
         print("-------------------")
+        
         self.enforce_node_consistency()
         print(self.domains)
         print("-------------------")
+
         self.ac3()
         print(self.domains)
         print("-------------------")
-        # return self.backtrack(dict())
+
+        return self.backtrack(dict())
 
     def enforce_node_consistency(self):
         """
@@ -153,9 +156,6 @@ class CrosswordCreator():
                     if not arc in arcs: 
                         arcs.append(arc)
 
-        print(len(arcs))
-        print("-----------------")
-        
         while arcs:
             x, y = arcs.pop()
             if self.revise(x, y):
@@ -168,14 +168,20 @@ class CrosswordCreator():
                             arcs.append(arc)
         
         return True
-        
 
     def assignment_complete(self, assignment):
         """
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        raise NotImplementedError
+        if not assignment or len(assignment) != len(self.crossword.variables):
+            return False
+
+        for x in self.crossword.variables:
+            if not assignment[x]:
+                return False
+        
+        return True
 
     def consistent(self, assignment):
         """
@@ -201,8 +207,31 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        raise NotImplementedError
+        # Create a set of unassigned variables with the minimum number of values
+        minimum = set()
+        i = 1
+        while not minimum:
+            for var in self.crossword.variables:
+                if len(self.domains[var]) == i:
+                    minimum.add(var)
+            i += 1
+        print(minimum)
 
+        if len(minimum) == 1:
+            return minimum.pop()
+        
+        # Create a set of the tied variables with the highest degree
+        highest = set()
+        n = len(self.crossword.variables) - 1
+        while not highest:
+            for var in minimum:
+                if len(self.crossword.neighbors(var)) == n:
+                    highest.add(var)
+            n -= 1
+        
+        print(highest)
+        return highest.pop()
+        
     def backtrack(self, assignment):
         """
         Using Backtracking Search, take as input a partial assignment for the
@@ -212,7 +241,9 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
-        raise NotImplementedError
+        if self.assignment_complete(assignment):
+            return assignment
+        print(self.select_unassigned_variable(assignment))
 
 
 def main():
