@@ -207,20 +207,28 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        # Create a set of unassigned variables with the minimum number of values
+        # Create a set of unassigned variables
+        unassigned = set()
+        for var in self.crossword.variables:
+            if var not in assignment:
+                unassigned.add(var)
+        print(unassigned)
+        if len(unassigned) == 1:
+            return unassigned.pop()
+        
+        # Filter the unassigned variables by the minimum number of values
         minimum = set()
         i = 1
         while not minimum:
-            for var in self.crossword.variables:
+            for var in unassigned:
                 if len(self.domains[var]) == i:
                     minimum.add(var)
             i += 1
         print(minimum)
-
         if len(minimum) == 1:
             return minimum.pop()
         
-        # Create a set of the tied variables with the highest degree
+        # Filter the tied variables by the highest degree
         highest = set()
         n = len(self.crossword.variables) - 1
         while not highest:
@@ -228,7 +236,6 @@ class CrosswordCreator():
                 if len(self.crossword.neighbors(var)) == n:
                     highest.add(var)
             n -= 1
-        
         print(highest)
         return highest.pop()
         
@@ -241,9 +248,16 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
+        print(assignment)
         if self.assignment_complete(assignment):
             return assignment
-        print(self.select_unassigned_variable(assignment))
+        var = self.select_unassigned_variable(assignment)
+        print(var)
+        for val in self.domains[var]: # order pending
+            assignment[var] = val
+            print(assignment)
+            if self.consistent(assignment):
+
 
 
 def main():
