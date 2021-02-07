@@ -1,5 +1,7 @@
 import sys
 
+from PIL.Image import new
+
 from crossword import *
 
 
@@ -89,16 +91,9 @@ class CrosswordCreator():
         """
         Enforce node and arc consistency, and then solve the CSP.
         """
-        print(self.domains)
-        print("-------------------")
-        
         self.enforce_node_consistency()
-        print(self.domains)
-        print("-------------------")
 
         self.ac3()
-        print(self.domains)
-        print("-------------------")
 
         return self.backtrack(dict())
 
@@ -205,7 +200,29 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        raise NotImplementedError
+        if var.direction == 'down' and var.length == 4:
+            self.domains[var].add('temp')
+        print(self.domains[var])
+        # print(assignment)
+        order = list()
+        for value in self.domains[var]:
+            rule = 0
+            for n in self.crossword.neighbors(var):
+                if n in assignment:
+                    if value == assignment[n]:
+                        rule += 1
+                else:
+                    if value in self.domains[n]:
+                        rule += 1
+            order.append((value, rule))
+        print(order)
+        order.sort(key=lambda x: x[1])     
+        print(order)
+        new_order = list()
+        for pair in order:
+            new_order.append(pair[0])
+        print(new_order)
+        return new_order
 
     def select_unassigned_variable(self, assignment):
         """
@@ -220,7 +237,6 @@ class CrosswordCreator():
         for var in self.crossword.variables:
             if var not in assignment:
                 unassigned.add(var)
-        print(unassigned)
         if len(unassigned) == 1:
             return unassigned.pop()
         
@@ -232,7 +248,6 @@ class CrosswordCreator():
                 if len(self.domains[var]) == i:
                     minimum.add(var)
             i += 1
-        print(minimum)
         if len(minimum) == 1:
             return minimum.pop()
         
@@ -244,7 +259,6 @@ class CrosswordCreator():
                 if len(self.crossword.neighbors(var)) == n:
                     highest.add(var)
             n -= 1
-        print(highest)
         return highest.pop()
         
     def backtrack(self, assignment):
@@ -256,18 +270,16 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
-        print(assignment)
         if self.assignment_complete(assignment):
             return assignment
         var = self.select_unassigned_variable(assignment)
-        print(var)
-        for val in self.domains[var]: # order pending
+        for val in self.order_domain_values(var, assignment):
+        # for val in self.domains[var]: # order pending
+            # print(val)
             assignment[var] = val
-            print(assignment)
-            print(self.consistent(assignment))
             if self.consistent(assignment):
                 result = self.backtrack(assignment)
-                if result:
+                if result is not None:
                     return result
             assignment.pop(var)
         return None
