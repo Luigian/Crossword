@@ -181,8 +181,6 @@ class CrosswordCreator():
         puzzle without conflicting characters); return False otherwise.
         """
         for x in assignment:
-            if len(assignment[x]) != x.length:
-                return False
             for y in self.crossword.neighbors(x):
                 if y in assignment:
                     i, j = self.crossword.overlaps[x, y]
