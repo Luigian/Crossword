@@ -92,9 +92,7 @@ class CrosswordCreator():
         Enforce node and arc consistency, and then solve the CSP.
         """
         self.enforce_node_consistency()
-
         self.ac3()
-
         return self.backtrack(dict())
 
     def enforce_node_consistency(self):
@@ -103,12 +101,12 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        for v in self.crossword.variables:
+        for var in self.crossword.variables:
             new_domains = set()
-            for domain in self.domains[v]:
-                if len(domain) == v.length:
+            for domain in self.domains[var]:
+                if len(domain) == var.length:
                     new_domains.add(domain)
-            self.domains[v] = new_domains
+            self.domains[var] = new_domains
 
     def revise(self, x, y):
         """
@@ -132,6 +130,7 @@ class CrosswordCreator():
         if len(self.domains[x]) != len(x_new_domains):
             self.domains[x] = x_new_domains
             return True
+
         return False
 
     def ac3(self, arcs=None):
@@ -171,11 +170,9 @@ class CrosswordCreator():
         """
         if not assignment or len(assignment) != len(self.crossword.variables):
             return False
-
         for x in self.crossword.variables:
             if not assignment[x]:
                 return False
-        
         return True
 
     def consistent(self, assignment):
@@ -200,29 +197,23 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        if var.direction == 'down' and var.length == 4:
-            self.domains[var].add('temp')
-        print(self.domains[var])
-        # print(assignment)
-        order = list()
+        rule_counts = list()
         for value in self.domains[var]:
-            rule = 0
-            for n in self.crossword.neighbors(var):
-                if n in assignment:
-                    if value == assignment[n]:
-                        rule += 1
+            count = 0
+            for neighbor in self.crossword.neighbors(var):
+                if neighbor in assignment:
+                    if value == assignment[neighbor]:
+                        count += 1
                 else:
-                    if value in self.domains[n]:
-                        rule += 1
-            order.append((value, rule))
-        print(order)
-        order.sort(key=lambda x: x[1])     
-        print(order)
-        new_order = list()
-        for pair in order:
-            new_order.append(pair[0])
-        print(new_order)
-        return new_order
+                    if value in self.domains[neighbor]:
+                        count += 1
+            rule_counts.append((value, count))
+        rule_counts.sort(key=lambda tup: tup[1])     
+        
+        order = list()
+        for tup in rule_counts:
+            order.append(tup[0])
+        return order
 
     def select_unassigned_variable(self, assignment):
         """
@@ -253,12 +244,12 @@ class CrosswordCreator():
         
         # Filter the tied variables by the highest degree
         highest = set()
-        n = len(self.crossword.variables) - 1
+        i = len(self.crossword.variables) - 1
         while not highest:
             for var in minimum:
-                if len(self.crossword.neighbors(var)) == n:
+                if len(self.crossword.neighbors(var)) == i:
                     highest.add(var)
-            n -= 1
+            i -= 1
         return highest.pop()
         
     def backtrack(self, assignment):
@@ -273,10 +264,8 @@ class CrosswordCreator():
         if self.assignment_complete(assignment):
             return assignment
         var = self.select_unassigned_variable(assignment)
-        for val in self.order_domain_values(var, assignment):
-        # for val in self.domains[var]: # order pending
-            # print(val)
-            assignment[var] = val
+        for value in self.order_domain_values(var, assignment):
+            assignment[var] = value
             if self.consistent(assignment):
                 result = self.backtrack(assignment)
                 if result is not None:
