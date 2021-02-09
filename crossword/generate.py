@@ -126,19 +126,35 @@ class CrosswordCreator():
         """
         i = self.crossword.overlaps[x, y][0]
         j = self.crossword.overlaps[x, y][1]
-        x_new_domains = set()
+        revise = False
 
-        for x_domain in self.domains[x]:
-            for y_domain in self.domains[y]:
-                if x_domain[i] == y_domain[j]:
-                    x_new_domains.add(x_domain)
-                    continue
+        for x_value in self.domains[x].copy():
+            consistency = False
+            for y_value in self.domains[y]:
+                if x_value[i] == y_value[j]:
+                    consistency = True
+                    break
+            if not consistency:        
+                self.domains[x].remove(x_value)
+                revise = True
+                    
+        return revise
+
+        # i = self.crossword.overlaps[x, y][0]
+        # j = self.crossword.overlaps[x, y][1]
+        # x_new_domains = set()
+
+        # for x_domain in self.domains[x]:
+        #     for y_domain in self.domains[y]:
+        #         if x_domain[i] == y_domain[j]:
+        #             x_new_domains.add(x_domain)
+        #             continue
         
-        if len(self.domains[x]) != len(x_new_domains):
-            self.domains[x] = x_new_domains
-            return True
+        # if len(self.domains[x]) != len(x_new_domains):
+        #     self.domains[x] = x_new_domains
+        #     return True
 
-        return False
+        # return False
 
     def ac3(self, arcs=None):
         """
