@@ -181,9 +181,20 @@ class CrosswordCreator():
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
+        # for x in assignment:
+        #     for y in self.crossword.neighbors(x):
+        #         if y in assignment:
+        #             i, j = self.crossword.overlaps[x, y]
+        #             if assignment[x][i] != assignment[y][j]:
+        #                 return False
+        # return True
         for x in assignment:
-            for y in self.crossword.neighbors(x):
-                if y in assignment:
+            for y in assignment:
+                if x is y:
+                    continue
+                if assignment[x] == assignment[y]:
+                    return False
+                if y in self.crossword.neighbors(x):
                     i, j = self.crossword.overlaps[x, y]
                     if assignment[x][i] != assignment[y][j]:
                         return False
