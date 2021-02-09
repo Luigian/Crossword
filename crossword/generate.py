@@ -1,4 +1,5 @@
 import sys
+import PIL
 
 from PIL.Image import new
 
@@ -103,11 +104,16 @@ class CrosswordCreator():
          constraints; in this case, the length of the word.)
         """
         for var in self.crossword.variables:
-            new_domains = set()
-            for value in self.domains[var]:
-                if len(value) == var.length:
-                    new_domains.add(value)
-            self.domains[var] = new_domains
+            for value in self.domains[var].copy():
+                if len(value) != var.length:
+                    self.domains[var].remove(value)
+            
+            
+            # new_domains = set()
+            # for value in self.domains[var]:
+            #     if len(value) == var.length:
+            #         new_domains.add(value)
+            # self.domains[var] = new_domains
 
     def revise(self, x, y):
         """
