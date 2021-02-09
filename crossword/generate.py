@@ -92,7 +92,8 @@ class CrosswordCreator():
         Enforce node and arc consistency, and then solve the CSP.
         """
         self.enforce_node_consistency()
-        self.ac3()
+        if not self.ac3():
+            return None
         return self.backtrack(dict())
 
     def enforce_node_consistency(self):
@@ -103,9 +104,9 @@ class CrosswordCreator():
         """
         for var in self.crossword.variables:
             new_domains = set()
-            for domain in self.domains[var]:
-                if len(domain) == var.length:
-                    new_domains.add(domain)
+            for value in self.domains[var]:
+                if len(value) == var.length:
+                    new_domains.add(value)
             self.domains[var] = new_domains
 
     def revise(self, x, y):
