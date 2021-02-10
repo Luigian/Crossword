@@ -124,8 +124,8 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        i = self.crossword.overlaps[x, y][0]
-        j = self.crossword.overlaps[x, y][1]
+        i, j = self.crossword.overlaps[x, y]
+        # j = self.crossword.overlaps[x, y][1]
         revise = False
 
         for x_value in self.domains[x].copy():
@@ -168,19 +168,19 @@ class CrosswordCreator():
         if not arcs:
             arcs = list()
             for x in self.crossword.variables:
-                for neighbor in self.crossword.neighbors(x):
-                    arc = (x, neighbor)
-                    if not arc in arcs: 
-                        arcs.append(arc)
+                for y in self.crossword.neighbors(x):
+                    # arc = (x, y)
+                    # if not arc in arcs: 
+                    arcs.append((x, y))
 
         while arcs:
-            x, y = arcs.pop()
+            x, y = arcs.pop(0)
             if self.revise(x, y):
                 if not len(self.domains[x]):
                     return False
-                for neighbor in self.crossword.neighbors(x):
-                    if neighbor != y:
-                        arc = (neighbor, x)
+                for z in self.crossword.neighbors(x):
+                    if z != y:
+                        arc = (z, x)
                         if not arc in arcs: 
                             arcs.append(arc)
         
@@ -211,6 +211,8 @@ class CrosswordCreator():
         #                 return False
         # return True
         for x in assignment:
+            if len(assignment[x]) != x.length:
+                return False
             for y in assignment:
                 if x is y:
                     continue
@@ -229,21 +231,22 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        rule_counts = list()
-        for value in self.domains[var]:
+        counts = list()
+        for x_value in self.domains[var]:
             count = 0
-            for neighbor in self.crossword.neighbors(var):
-                if neighbor in assignment:
-                    if value == assignment[neighbor]:
-                        count += 1
-                else:
-                    if value in self.domains[neighbor]:
-                        count += 1
-            rule_counts.append((value, count))
-        rule_counts.sort(key=lambda tup: tup[1])     
+            for y in self.crossword.neighbors(var):
+                if y not in assignment:
+                    i, j = self.crossword.overlaps[var, y]
+                    for y_value in self.domains[y]:
+                        if x_value == y_value or x_value[i] != y_value[j]:
+                            count += 1
+                    # if value in self.domains[y]:
+                        # count += 1
+            counts.append((x_value, count))
+        counts.sort(key=lambda tup: tup[1])     
         
         order = list()
-        for tup in rule_counts:
+        for tup in counts:
             order.append(tup[0])
         return order
 
