@@ -93,8 +93,10 @@ class CrosswordCreator():
         Enforce node and arc consistency, and then solve the CSP.
         """
         self.enforce_node_consistency()
-        if not self.ac3():
-            return None
+        self.ac3()
+        
+        # if not self.ac3():
+            # return None
         return self.backtrack(dict())
 
     def enforce_node_consistency(self):
@@ -232,6 +234,11 @@ class CrosswordCreator():
         that rules out the fewest values among the neighbors of `var`.
         """
         counts = list()
+        values = list()
+
+        if not self.domains[var]:
+            return values
+        
         for var_value in self.domains[var]:
             count = 0
             for y in self.crossword.neighbors(var):
@@ -243,12 +250,11 @@ class CrosswordCreator():
                     # if value in self.domains[y]:
                         # count += 1
             counts.append((var_value, count))
-        counts.sort(key=lambda tup: tup[1])     
+        counts.sort(key=lambda tup: tup[1])   
         
-        order = list()
         for tup in counts:
-            order.append(tup[0])
-        return order
+            values.append(tup[0])
+        return values
 
     def select_unassigned_variable(self, assignment):
         """
@@ -258,34 +264,60 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        # Create a set of unassigned variables
-        unassigned = set()
+        unassigned = list()
         for var in self.crossword.variables:
             if var not in assignment:
-                unassigned.add(var)
-        if len(unassigned) == 1:
-            return unassigned.pop()
+                d = len(self.domains[var])
+                n = len(self.crossword.neighbors(var))
+                unassigned.append((var, d, n))
+
+        unassigned.sort(key=lambda tup: tup[1])
+        for tup in unassigned:
+            if tup[1] != unassigned[0][1]:
+                unassigned.remove(tup)
         
-        # Filter the unassigned variables by the minimum number of values
-        minimum = set()
-        i = 1
-        while not minimum:
-            for var in unassigned:
-                if len(self.domains[var]) == i:
-                    minimum.add(var)
-            i += 1
-        if len(minimum) == 1:
-            return minimum.pop()
+        unassigned.sort(key=lambda tup: tup[2], reverse=True)
+        return unassigned[0][0]
+
+
+        # # Filter the tied variables by the highest degree
+        # highest = set()
+        # i = len(self.crossword.variables) - 1
+        # while not highest:
+        #     for var in minimum:
+        #         if len(self.crossword.neighbors(var)) == i:
+        #             highest.add(var)
+        #     i -= 1
+        # return highest.pop()
+
+        # # Create a set of unassigned variables
+        # unassigned = set()
+        # for var in self.crossword.variables:
+        #     if var not in assignment:
+        #         unassigned.add(var)
+        # if len(unassigned) == 1:
+        #     return unassigned.pop()
         
-        # Filter the tied variables by the highest degree
-        highest = set()
-        i = len(self.crossword.variables) - 1
-        while not highest:
-            for var in minimum:
-                if len(self.crossword.neighbors(var)) == i:
-                    highest.add(var)
-            i -= 1
-        return highest.pop()
+        # # Filter the unassigned variables by the minimum number of values
+        # minimum = set()
+        # i = 1
+        # while not minimum:
+        #     for var in unassigned:
+        #         if len(self.domains[var]) == i:
+        #             minimum.add(var)
+        #     i += 1
+        # if len(minimum) == 1:
+        #     return minimum.pop()
+        
+        # # Filter the tied variables by the highest degree
+        # highest = set()
+        # i = len(self.crossword.variables) - 1
+        # while not highest:
+        #     for var in minimum:
+        #         if len(self.crossword.neighbors(var)) == i:
+        #             highest.add(var)
+        #     i -= 1
+        # return highest.pop()
         
     def backtrack(self, assignment):
         """
