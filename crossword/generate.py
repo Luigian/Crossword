@@ -232,17 +232,17 @@ class CrosswordCreator():
         that rules out the fewest values among the neighbors of `var`.
         """
         counts = list()
-        for x_value in self.domains[var]:
+        for var_value in self.domains[var]:
             count = 0
             for y in self.crossword.neighbors(var):
                 if y not in assignment:
                     i, j = self.crossword.overlaps[var, y]
                     for y_value in self.domains[y]:
-                        if x_value == y_value or x_value[i] != y_value[j]:
+                        if var_value == y_value or var_value[i] != y_value[j]:
                             count += 1
                     # if value in self.domains[y]:
                         # count += 1
-            counts.append((x_value, count))
+            counts.append((var_value, count))
         counts.sort(key=lambda tup: tup[1])     
         
         order = list()
