@@ -94,9 +94,6 @@ class CrosswordCreator():
         """
         self.enforce_node_consistency()
         self.ac3()
-        
-        # if not self.ac3():
-            # return None
         return self.backtrack(dict())
 
     def enforce_node_consistency(self):
@@ -109,13 +106,6 @@ class CrosswordCreator():
             for value in self.domains[var].copy():
                 if len(value) != var.length:
                     self.domains[var].remove(value)
-            
-            
-            # new_domains = set()
-            # for value in self.domains[var]:
-            #     if len(value) == var.length:
-            #         new_domains.add(value)
-            # self.domains[var] = new_domains
 
     def revise(self, x, y):
         """
@@ -127,7 +117,6 @@ class CrosswordCreator():
         False if no revision was made.
         """
         i, j = self.crossword.overlaps[x, y]
-        # j = self.crossword.overlaps[x, y][1]
         revise = False
 
         for x_value in self.domains[x].copy():
@@ -142,22 +131,6 @@ class CrosswordCreator():
                     
         return revise
 
-        # i = self.crossword.overlaps[x, y][0]
-        # j = self.crossword.overlaps[x, y][1]
-        # x_new_domains = set()
-
-        # for x_domain in self.domains[x]:
-        #     for y_domain in self.domains[y]:
-        #         if x_domain[i] == y_domain[j]:
-        #             x_new_domains.add(x_domain)
-        #             continue
-        
-        # if len(self.domains[x]) != len(x_new_domains):
-        #     self.domains[x] = x_new_domains
-        #     return True
-
-        # return False
-
     def ac3(self, arcs=None):
         """
         Update `self.domains` such that each variable is arc consistent.
@@ -171,8 +144,6 @@ class CrosswordCreator():
             arcs = list()
             for x in self.crossword.variables:
                 for y in self.crossword.neighbors(x):
-                    # arc = (x, y)
-                    # if not arc in arcs: 
                     arcs.append((x, y))
 
         while arcs:
@@ -205,13 +176,6 @@ class CrosswordCreator():
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
-        # for x in assignment:
-        #     for y in self.crossword.neighbors(x):
-        #         if y in assignment:
-        #             i, j = self.crossword.overlaps[x, y]
-        #             if assignment[x][i] != assignment[y][j]:
-        #                 return False
-        # return True
         for x in assignment:
             if len(assignment[x]) != x.length:
                 return False
@@ -247,8 +211,6 @@ class CrosswordCreator():
                     for y_value in self.domains[y]:
                         if var_value == y_value or var_value[i] != y_value[j]:
                             count += 1
-                    # if value in self.domains[y]:
-                        # count += 1
             counts.append((var_value, count))
         counts.sort(key=lambda tup: tup[1])   
         
@@ -278,46 +240,6 @@ class CrosswordCreator():
         
         unassigned.sort(key=lambda tup: tup[2], reverse=True)
         return unassigned[0][0]
-
-
-        # # Filter the tied variables by the highest degree
-        # highest = set()
-        # i = len(self.crossword.variables) - 1
-        # while not highest:
-        #     for var in minimum:
-        #         if len(self.crossword.neighbors(var)) == i:
-        #             highest.add(var)
-        #     i -= 1
-        # return highest.pop()
-
-        # # Create a set of unassigned variables
-        # unassigned = set()
-        # for var in self.crossword.variables:
-        #     if var not in assignment:
-        #         unassigned.add(var)
-        # if len(unassigned) == 1:
-        #     return unassigned.pop()
-        
-        # # Filter the unassigned variables by the minimum number of values
-        # minimum = set()
-        # i = 1
-        # while not minimum:
-        #     for var in unassigned:
-        #         if len(self.domains[var]) == i:
-        #             minimum.add(var)
-        #     i += 1
-        # if len(minimum) == 1:
-        #     return minimum.pop()
-        
-        # # Filter the tied variables by the highest degree
-        # highest = set()
-        # i = len(self.crossword.variables) - 1
-        # while not highest:
-        #     for var in minimum:
-        #         if len(self.crossword.neighbors(var)) == i:
-        #             highest.add(var)
-        #     i -= 1
-        # return highest.pop()
         
     def backtrack(self, assignment):
         """
