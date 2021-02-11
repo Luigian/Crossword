@@ -255,11 +255,25 @@ class CrosswordCreator():
         var = self.select_unassigned_variable(assignment)
         for value in self.order_domain_values(var, assignment):
             assignment[var] = value
-            if self.consistent(assignment):
-                result = self.backtrack(assignment)
-                if result is not None:
-                    return result
+            
+            arcs = list()
+            domains_copy = dict()
+            for y in self.crossword.neighbors(var):
+                if y not in assignment:
+                    arcs.append((y, var))
+                    domains_copy[y] = self.domains[y]
+            domains_copy[var] = self.domains[var]
+            new_set = set()
+            new_set.add(value)
+            self.domains[var] = new_set
+            if self.ac3(arcs):
+                if self.consistent(assignment):
+                    result = self.backtrack(assignment)
+                    if result is not None:
+                        return result
             assignment.pop(var)
+            for x in domains_copy:
+                self.domains[x] = domains_copy[x] 
         return None
 
 
