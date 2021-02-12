@@ -240,6 +240,22 @@ class CrosswordCreator():
         
         unassigned.sort(key=lambda tup: tup[2], reverse=True)
         return unassigned[0][0]
+
+    def domains_backup(self, var, assignment):
+        domains = dict()
+        for y in self.crossword.neighbors(var):
+            if y not in assignment:
+                domains[y] = self.domains[y]
+        domains[var] = self.domains[var]
+        return domains
+
+    def inferences(self, var, assignment):
+        arcs = list()
+        for y in self.crossword.neighbors(var):
+            if y not in assignment:
+                arcs.append((y, var))
+        self.domains[var] = {assignment[var]}
+        return self.ac3(arcs)
         
     def backtrack(self, assignment):
         """
@@ -255,25 +271,15 @@ class CrosswordCreator():
         var = self.select_unassigned_variable(assignment)
         for value in self.order_domain_values(var, assignment):
             assignment[var] = value
-            
-            arcs = list()
-            domains_copy = dict()
-            for y in self.crossword.neighbors(var):
-                if y not in assignment:
-                    arcs.append((y, var))
-                    domains_copy[y] = self.domains[y]
-            domains_copy[var] = self.domains[var]
-            new_set = set()
-            new_set.add(value)
-            self.domains[var] = new_set
-            if self.ac3(arcs):
+            domains = self.domains_backup(var, assignment)
+            if self.inferences(var, assignment):
                 if self.consistent(assignment):
                     result = self.backtrack(assignment)
                     if result is not None:
                         return result
             assignment.pop(var)
-            for x in domains_copy:
-                self.domains[x] = domains_copy[x] 
+            for x in domains:
+                self.domains[x] = domains[x] 
         return None
 
 
