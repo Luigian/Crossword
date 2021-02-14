@@ -242,6 +242,12 @@ class CrosswordCreator():
         return unassigned[0][0]
 
     def domains_backup(self, var, assignment):
+        """
+        Makes a backup copy of the domains belonging to the variables
+        that are going to be checked later for arc consistency, in case we
+        need to undo the inferences and recover the previous state of these
+        domains.
+        """
         domains = dict()
         for y in self.crossword.neighbors(var):
             if y not in assignment:
@@ -250,6 +256,10 @@ class CrosswordCreator():
         return domains
 
     def inferences(self, var, assignment):
+        """
+        Try to enforce arc consistency between the last variable assigned 
+        and their neighbors.
+        """
         arcs = list()
         for y in self.crossword.neighbors(var):
             if y not in assignment:
