@@ -10,6 +10,37 @@ As with many constraint satisfaction problems, these variables have both unary a
 
 The challenge, then, was write a program to find a satisfying assignment: a different word (from a given vocabulary list) for each variable such that all of the unary and binary constraints are met.
 
+**Optimization**
+
+Optimization is choosing the best option from a set of possible options. Problems where we tried to find the best possible option, such as in the minimax algorithm, but there are tools that we can use to solve an even broader range of problems.
+
+**Constraint Satisfaction**
+
+Constraint Satisfaction problems are a class of problems where variables need to be assigned values while satisfying some conditions. Constraints satisfaction problems have the following properties:
+
+- Set of variables (x₁, x₂, …, xₙ)
+- Set of domains for each variable {D₁, D₂, …, Dₙ}
+- Set of constraints C
+
+These problems can be solved using constraints that are represented as a graph. Each node on the graph is a variable, and an edge is drawn between two variables to represent a costraint.
+
+<img src="resources/constraint_graph.png" width="600">
+
+**Node Consistency**
+
+A Unary Constraint is a constraint that involves only one variable. Node consistency is when all the values in a variable’s domain satisfy the variable’s unary constraints.
+
+**Arc Consistency**
+
+A Binary Constraint is a constraint that involves two variables. Arc consistency is when all the values in a variable’s domain satisfy the variable’s binary constraints. In other words, to make X arc-consistent with respect to Y, remove elements from X’s domain until every choice for X has a possible choice for Y.
+
+--------
+
+
+This algorithm adds all the arcs in the problem to a queue. Each time it considers an arc, it removes it from the queue. Then, it runs the Revise algorithm to see if this arc is consistent. If changes were made to make it consistent, further actions are needed. If the resulting domain of X is empty, it means that this constraint satisfaction problem is unsolvable (since there are no values that X can take that will allow Y to take any value given the constraints). If the problem is not deemed unsolvable in the previous step, then, since X’s domain was changed, we need to see if all the arcs associated with X are still consistent. That is, we take all of X’s neighbors except Y, and we add the arcs between them and X to the queue. However, if the Revise algorithm returns false, meaning that the domain wasn’t changed, we simply continue considering the other arcs.
+
+While the algorithm for arc consistency can simplify the problem, it will not necessarily solve it, since it considers binary constraints only and not how multiple nodes might be interconnected. Our previous example, where each of 4 students is taking 3 courses, remains unchanged by running AC-3 on it.
+
 ## Implementation
 
 There are two Python files in this project: `crossword.py` and `generate.py`. 
