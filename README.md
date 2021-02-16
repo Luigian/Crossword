@@ -24,7 +24,7 @@ Constraint Satisfaction problems are a class of problems where variables need to
 
 These problems can be solved using constraints that are represented as a graph. Each node on the graph is a variable, and an edge is drawn between two variables to represent a costraint.
 
-<img src="resources/constraint_graph.png" width="600">
+<img src="resources/constraint_graph.png" width="400">
 
 **Node Consistency**
 
